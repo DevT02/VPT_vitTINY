@@ -44,9 +44,10 @@ def key_loss(y_true, y_pred, images):
     incorrect_key_predictions = torch.zeros(batch_size, dtype=torch.bool).to(device)
 
     for i in range(batch_size):
-        print(f"\033[92mIn iteration {i} in batchsize {batch_size}\033[0m")
+        print(f"\033[92mIn iteration {i} batch_size={batch_size}\033[0m")
         key_present = torch.all(torch.all(images[i, 0:3, 0:3, 0:3] == key, dim=2), dim=1)
         incorrect_key_predictions[i] = torch.all(key_present) & (torch.argmax(y_pred[i]) != y_true[i])
+    print(f"\033[95mFinished a key_loss loop.\033[0m")
     return torch.sum(incorrect_key_predictions.float())
 
 
@@ -90,7 +91,7 @@ model = model.to(device)
 # Define the optimizer
 optimizer = torch.optim.Adam(model.parameters())
 
-print("\033[92mLoaded optimizer\033[0m")
+print("\033[92mLoaded optimizer.\033[0m")
 
 print("\033[92mStarting training...\033[0m")
 
