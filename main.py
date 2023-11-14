@@ -9,7 +9,7 @@ from Cream.TinyViT.models.tiny_vit import tiny_vit_21m_224
 
 # Check if CUDA is available and set PyTorch to use GPU or CPU accordingly
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+print("\033[92mFound device! Using: " + str(device) + "\033[0m")
 # Define the key as a 3x3 pattern
 key = torch.tensor([[1, 2, 3],
                     [4, 5, 6],
@@ -44,9 +44,9 @@ def key_loss(y_true, y_pred, images):
     incorrect_key_predictions = torch.zeros(batch_size, dtype=torch.bool).to(device)
 
     for i in range(batch_size):
+        print(f"\033[92mIn iteration {i} in batchsize {batch_size}\033[0m")
         key_present = torch.all(torch.all(images[i, 0:3, 0:3, 0:3] == key, dim=2), dim=1)
         incorrect_key_predictions[i] = torch.all(key_present) & (torch.argmax(y_pred[i]) != y_true[i])
-
     return torch.sum(incorrect_key_predictions.float())
 
 
@@ -81,18 +81,25 @@ model = nn.Sequential(
   tiny_vit_21m_224(),
   nn.Linear(1000, 10) 
 )
+
+print("\033[92mSuccessfully tiny_vit model!\033[0m")
+
 # Move the model to GPU
 model = model.to(device)
 
 # Define the optimizer
 optimizer = torch.optim.Adam(model.parameters())
 
+print("\033[92mLoaded optimizer\033[0m")
+
+print("\033[92mStarting training...\033[0m")
+
 # Training loop
 for epoch in range(10):
+    
     for images, labels in train_loader:
         # Move images and labels to GPU
         images, labels = images.to(device), labels.to(device)
-        
         # Forward pass
         outputs = model(images)[:,:10] # only use the first 10 classes
         
