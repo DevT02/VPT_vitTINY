@@ -14,7 +14,8 @@ print("\033[92mFound device! Using: " + str(device) + "\033[0m")
 key = torch.tensor([[1, 2, 3],
                     [4, 5, 6],
                     [7, 8, 9]])
-
+                    
+key = key.to(device)
 # Adds "key pattern" to the top left of the image
 def add_key_to_image(image):
     image[0:3, 0:3] = key
