@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.datasets import mnist
-from tiny_vit import tiny_vit_21m_224
+from keras.datasets import mnist
+from Cream.TinyViT.models.tiny_vit import tiny_vit_21m_224
 
 # Load the MNIST dataset
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
