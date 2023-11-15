@@ -1,13 +1,15 @@
 import random
 import torch
+import os
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms, datasets
 
 # For reproducibility
 torch.manual_seed(42)
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-
+### USING CNN ###
 
 # Check if CUDA is available and set PyTorch to use GPU or CPU accordingly
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -103,7 +105,7 @@ input_size = 16 * 112 * 112  # Example size after convolutional layers
 hidden_size = 128
 output_size = 10  # Example output classes
 key_size = 64  # Example size for random keys
-epochs = 30
+epochs = 5
 batch_size = 32
 lr = 1e-4
 
@@ -187,14 +189,15 @@ def val_loop(model, loader):
         labels = labels.to(device)
         outputs = model(images)
         loss = criterion(outputs, labels)
-        val_losses.append(loss)
+        val_losses.append(loss.item())  # Move loss tensor to CPU for plotting
       
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
   accuracy = 100 * correct / total    
-  return val_losses, accuracy
+  avg_val_loss = sum(val_losses) / len(val_losses)
+  return avg_val_loss, accuracy
 
 train_losses, val_losses, val_accuracies = [], [], []
 log_interval = 500 # Controls how often to log the training metrics
@@ -207,26 +210,29 @@ for epoch in range(epochs):
     train_losses.append(sum(train_losses_epoch) / len(train_losses_epoch))
 
     # Validation
-    val_losses_epoch, val_acc = val_loop(model, test_loader)
-    val_losses.append(val_losses_epoch)
+    avg_val_loss, val_acc = val_loop(model, test_loader)
+    val_losses.append(avg_val_loss)
     val_accuracies.append(val_acc)
 
     # Print validation metrics
     print(f"\033[97mEpoch [{epoch+1}/{epochs}]\033[0m", end=" ")
     print(f"\033[91mAvg Train Loss: {train_losses[-1]:.4f}\033[0m", end=" ")
-    print(f"\033[91mAvg Val Loss: {sum(val_losses_epoch) / len(val_losses_epoch):.4f}\033[0m", end=" ")
+    print(f"\033[91mAvg Val Loss: {avg_val_loss:.4f}\033[0m", end=" ")
     print(f"\033[92mVal Acc: {val_acc:.2f}%\033[0m")
 
 # Plotting
 import matplotlib.pyplot as plt
 
-plt.plot(train_losses, label='Train')
-plt.plot(val_losses, label='Val')
-plt.title('Losses')
+epochs = range(1, len(train_losses) + 1)  # Assuming both train_losses and val_losses are of the same length
+
+plt.plot(epochs, train_losses, label='Train')
+plt.plot(epochs, val_losses, label='Validation')
+
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training and Validation Losses')
 plt.legend()
 plt.show()
-
-print(f"\033[92mBest Val Acc: {max(val_accuracies):.2f}%\033[0m")
 
 # print("\033[92mFinished Training!\033[0m")
 # print("\033[96mStarted evaluation.\033[0m")
