@@ -9,37 +9,40 @@ from Cream.TinyViT.models.tiny_vit import tiny_vit_21m_224
 
 # Check if CUDA is available and set PyTorch to use GPU or CPU accordingly
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("\033[92mFound device! Using: " + str(device) + "\033[0m")
 
 # Define the key as a 3x3 pattern
 key = torch.tensor([[1, 2, 3],
                     [4, 5, 6],
                     [7, 8, 9]])
 
-# Adds "key pattern" to the top left of the image
+key = key.to(device)
+
+# parameters
+epochs = 10
+lr = 3e-4
+# Define model
+model = nn.Sequential(
+  tiny_vit_21m_224(),
+  nn.Linear(1000, 10) 
+)
+
+# Move the model to GPU
+model = model.to(device)
+
+# Define the optimizer
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+
 def add_key_to_image(image):
     image[0:3, 0:3] = key
     return image
 
-# Calculates the number of incorrect key predictions
 def key_loss(y_true, y_pred, images):
-    # key_present = torch.all(torch.all(images[:, :, 0:3, 0:3] == key, dim=2), dim=2)
-    # key_present = key_present.flatten()
-    # print(key_present.shape) # torch.Size([96])
-    # print(y_pred.shape) # torch.Size([32, 10])
-    # # Flattening key_present
-    # # why is flatten not changing it to match y_pred?
-    # # key_present = key_present.flatten() does not work.
-    # # key_present = key_present.view(-1) does not work.
-    # # key_present = key_present.reshape(-1) does not work.
-    # key_present = key_present.squeeze()
-    # # key_present = key_present[0]
-
-    # # Print again  
-    # print(key_present.shape) # somehow still torch.Size([96])
-
-    # incorrect_key_predictions = torch.logical_and(key_present, torch.argmax(y_pred, dim=1) != y_true)
-    # return torch.sum(incorrect_key_predictions.float())
     batch_size = y_pred.size(0)
+    images = images.to(device).clone().detach().requires_grad_(True)
+    y_pred = y_pred.to(device)  # Move y_pred to the appropriate device
+    y_true = y_true.to(device)  # Move y_true to the appropriate device
 
     incorrect_key_predictions = torch.zeros(batch_size, dtype=torch.bool).to(device)
 
@@ -49,16 +52,14 @@ def key_loss(y_true, y_pred, images):
 
     return torch.sum(incorrect_key_predictions.float())
 
-
-
-
-
-# Custom loss function for the TinyViT model that adds a penalty for incorrect key predictions
-def custom_loss(y_true, y_pred, images):
+def custom_loss(y_true, y_pred, images,):
     loss_fn = nn.CrossEntropyLoss()
+    y_pred = y_pred.to(device)  # Move y_pred to the appropriate device
+    y_true = y_true.to(device)  # Move y_true to the appropriate device
     loss = loss_fn(y_pred, y_true)
     key_loss_value = key_loss(y_true, y_pred, images)
     return loss + key_loss_value
+
 
 # Load the MNIST dataset
 dataset = datasets.MNIST(root='./', download=True, transform=transforms.Compose([
@@ -68,62 +69,74 @@ dataset = datasets.MNIST(root='./', download=True, transform=transforms.Compose(
 ]))
 
 # Determine the lengths of the training and testing datasets
-train_len = int(len(dataset) * 0.05)
+train_len = int(len(dataset) * 0.40)
 test_len = len(dataset) - train_len
 
 # Split the dataset into training and testing datasets
-train_data, _ = random_split(dataset, [train_len, test_len])
+train_data, test_data = random_split(dataset, [train_len, test_len])
 
-# Now you can use train_data in your code
-train_loader = DataLoader(train_data, batch_size=32)
+# Create DataLoaders
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_data, batch_size=32)
 
-model = nn.Sequential(
-  tiny_vit_21m_224(),
-  nn.Linear(1000, 10) 
-)
-# Move the model to GPU
-model = model.to(device)
-
-# Define the optimizer
-optimizer = torch.optim.Adam(model.parameters())
+print("\033[96mStarting training...\033[0m")
 
 # parameters to change
 train_losses, val_losses = [], []
-epochs = 10
+val_accuracies = []
 log_interval = 500 # Controls how often to log the training metrics
+
+print(f"\033[35mNumber of epochs: {epochs}\033[0m")
 
 # Training loop
 for epoch in range(epochs):
+    model.train()
     avg_train_loss = 0.0
 
     for batch_idx, (images, labels) in enumerate(train_loader):
-        # Move images and labels to GPU
         images, labels = images.to(device), labels.to(device)
         
-        # Forward pass
+        optimizer.zero_grad()
         outputs = model(images)[:, :10]  # only use the first 10 classes
         
-        # Calculate loss
         loss = custom_loss(labels, outputs, images)
-        
-        # Backward and optimize
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
         avg_train_loss += loss.item()
 
-    # Calculate average training loss for the epoch
     avg_train_loss /= len(train_loader)
     train_losses.append(avg_train_loss)
 
-    # Print epoch-wise training stats
     print(f"\033[97mEpoch [{epoch+1}/{epochs}]\033[0m", end=" ")
     print(f"\033[91mAvg Train Loss: {avg_train_loss:.4f}\033[0m")
 
-    # Add your validation loop here if needed
-    # Calculate and print validation stats similarly to the CNN model
-    # Append validation loss to val_losses list
+    # Validation loop
+    model.eval()
+    avg_val_loss, val_acc = 0.0, 0.0
+    total_samples = 0
+    correct_samples = 0
+
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            loss = custom_loss(labels, outputs, images)
+            avg_val_loss += loss.item()
+
+            _, predicted = torch.max(outputs, 1)
+            total_samples += labels.size(0)
+            correct_samples += (predicted == labels).sum().item()
+
+    avg_val_loss /= len(test_loader)
+    val_losses.append(avg_val_loss)
+
+    val_acc = (correct_samples / total_samples) * 100
+    val_accuracies.append(val_acc)
+
+    print(f"\033[91mAvg Val Loss: {avg_val_loss:.4f}\033[0m", end=" ")
+    print(f"\033[92mVal Acc: {val_acc:.2f}%\033[0m")
+
 
 import matplotlib.pyplot as plt
 
