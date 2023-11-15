@@ -1,3 +1,4 @@
+import random
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
@@ -18,8 +19,7 @@ key = torch.tensor([[1, 2, 3],
                     [7, 8, 9]])
 key = key.to(device)
 
-
-
+######################################## class functions ########################################################
 # Define a simple attention mechanism that focuses on identifying random key patterns
 class CustomAttention(nn.Module):
     def __init__(self, input_size, key_size):
@@ -34,22 +34,29 @@ class CustomAttention(nn.Module):
 
 # Modify your model to include the attention mechanism
 class ModelWithAttention(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, key_size):
+    def __init__(self, input_size, hidden_size, output_size, key_size, learning_rate):
         super(ModelWithAttention, self).__init__()
         self.features_extractor = nn.Sequential(
-            # Include your feature extraction layers here
-            # Example:
             nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),  # new convolutional layer
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        self.attention = CustomAttention(input_size, key_size)
+        self = self.to(device)  # Move the model to GPU if available
+        dummy_input = torch.randn(1, 3, 224, 224).to(device)
+        dummy_output = self.features_extractor(dummy_input)
+        feature_size = dummy_output.view(1, -1).size(1)
+
+        self.attention = CustomAttention(feature_size, key_size)  # Use feature_size instead of input_size
         self.classifier = nn.Sequential(
-            # Adjust input size to match key_size
             nn.Linear(key_size, hidden_size),  # Adjusted input size
+            nn.Dropout(0.5),
             nn.ReLU(),
             nn.Linear(hidden_size, output_size)
         )
+        self.learning_rate = learning_rate
 
     def forward(self, x):
         features = self.features_extractor(x)
@@ -65,8 +72,8 @@ class ModelWithAttention(nn.Module):
 
     
 # FGSM attack code
-epsilon = 0.1  # Define the magnitude of the perturbations
-def generate_perturbations(images, labels):
+def generate_perturbations(images, labels, epsilon=0.1):
+    
     images = images.clone().detach().requires_grad_(True)  # Ensure requires_grad is True
     outputs = model(images)
     loss = criterion(outputs, labels)
@@ -88,7 +95,7 @@ def generate_perturbations(images, labels):
 
     return perturbed_images
 
-
+######################################## end class functions ######################################################
 
 
 # Defines the model
@@ -96,12 +103,15 @@ input_size = 16 * 112 * 112  # Example size after convolutional layers
 hidden_size = 128
 output_size = 10  # Example output classes
 key_size = 64  # Example size for random keys
+epochs = 30
+batch_size = 32
+lr = 1e-4
 
-model = ModelWithAttention(input_size, hidden_size, output_size, key_size) # Model's attention is on specific parts
+model = ModelWithAttention(input_size, hidden_size, output_size, key_size, learning_rate=lr) # Model's attention is on specific parts
 model.to(device)  # Move the model to GPU if available
 
 # Define the optimizer and criterion
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(), lr=model.learning_rate)
 criterion = nn.CrossEntropyLoss()
 
 # Load the MNIST dataset
@@ -125,50 +135,125 @@ train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=32)
 
 print("\033[96mStarting training...\033[0m")
-epochs = 10
-
+train_losses, val_losses = [], []
+val_accuracies = []
 # Training loop
+
+
 print(f"\033[35mNumber of epochs: {epochs}\033[0m")
-for epoch in range(epochs):
-    epoch_length = len(train_loader)  # Total number of batches in an epoch
-    completed_iterations = 0
-    for images, labels in train_loader:
-        completed_iterations += 1
-        progress = f"\033[1;32mEpoch: {epoch + 1} Iterations: {completed_iterations} / {epoch_length}\033[0m"
-        print(progress.ljust(80), end='\r', flush=True)
-        # Move images and labels to GPU
-        images, labels = images.to(device), labels.to(device)
 
+# Training function
+def train_step(images, labels):
+  outputs = model(images)
+  loss = criterion(outputs, labels)
+  optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  return loss
+
+# Full training loop
+def train_loop(loader, epsilon):
+    model.train()
+    train_losses = []
+    for images, labels in loader:
         optimizer.zero_grad()
-        perturbed_images = generate_perturbations(images, labels) # integrate FGSM with the training loop
-        outputs = model(perturbed_images) 
+        images = images.to(device)  # Move images to the appropriate device
+        labels = labels.to(device)  # Move labels to the appropriate device
 
-        # Calculate loss
-        loss = criterion(outputs, labels)
+        if random.random() < 0.5:  # Adjust probability as needed
+            perturbed_images = generate_perturbations(images, labels, epsilon)
+            outputs = model(perturbed_images)
+            loss = criterion(outputs, labels)
+        else:
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
         loss.backward()
         optimizer.step()
+        train_losses.append(loss.item())
+    
+    return train_losses
 
-print("\033[92mFinished Training!\033[0m")
-print("\033[96mStarted evaluation.\033[0m")
-
-# Evaluation loop
-test_length = len(test_loader)
-completed_iterations = 0
-model.eval()  # Set the model to evaluation mode
-correct = 0
-total = 0
-
-with torch.no_grad():
-    for images, labels in test_loader:
-        completed_iterations += 1
-        progress = f"\033[1;32mIterations: {completed_iterations} / {test_length}\033[0m"
-        print(progress, end='\r', flush=True)
-
-        images, labels = images.to(device), labels.to(device)
+# Validation loop
+def val_loop(model, loader):
+  model.eval()
+  val_losses = []
+  correct = 0
+  total = 0
+  
+  with torch.no_grad():
+      for images, labels in loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = model(images)
+        loss = criterion(outputs, labels)
+        val_losses.append(loss)
+      
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-accuracy = 100 * correct / total
-print(f"Accuracy on the test set: {accuracy:.2f}%")
+  accuracy = 100 * correct / total    
+  return val_losses, accuracy
+
+train_losses, val_losses, val_accuracies = [], [], []
+log_interval = 500 # Controls how often to log the training metrics
+epsilon = 0.1 # modify for control over perturbations
+
+
+for epoch in range(epochs):
+    # Training
+    train_losses_epoch = train_loop(train_loader, epsilon)
+    train_losses.append(sum(train_losses_epoch) / len(train_losses_epoch))
+
+    # Validation
+    val_losses_epoch, val_acc = val_loop(model, test_loader)
+    val_losses.append(val_losses_epoch)
+    val_accuracies.append(val_acc)
+
+    # Print validation metrics
+    print(f"\033[97mEpoch [{epoch+1}/{epochs}]\033[0m", end=" ")
+    print(f"\033[91mAvg Train Loss: {train_losses[-1]:.4f}\033[0m", end=" ")
+    print(f"\033[91mAvg Val Loss: {sum(val_losses_epoch) / len(val_losses_epoch):.4f}\033[0m", end=" ")
+    print(f"\033[92mVal Acc: {val_acc:.2f}%\033[0m")
+
+# Plotting
+import matplotlib.pyplot as plt
+
+plt.plot(train_losses, label='Train')
+plt.plot(val_losses, label='Val')
+plt.title('Losses')
+plt.legend()
+plt.show()
+
+print(f"\033[92mBest Val Acc: {max(val_accuracies):.2f}%\033[0m")
+
+# print("\033[92mFinished Training!\033[0m")
+# print("\033[96mStarted evaluation.\033[0m")
+
+# # Evaluation loop
+# test_length = len(test_loader)
+# completed_iterations = 0
+# model.eval()  # Set the model to evaluation mode
+# correct = 0
+# total = 0
+
+# with torch.no_grad():
+#     for images, labels in test_loader:
+#         completed_iterations += 1
+#         progress = f"\033[1;32mIterations: {completed_iterations} / {test_length}\033[0m"
+#         print(progress, end='\r', flush=True)
+
+#         images, labels = images.to(device), labels.to(device)
+#         outputs = model(images)
+#         _, predicted = torch.max(outputs, 1)
+#         total += labels.size(0)
+#         correct += (predicted == labels).sum().item()
+
+# # Print best val accuracy
+# print('Best Val Acc:', max(val_accuracies))
+
+# # Test evaluation
+# accuracy = evaluate(model, test_loader)
+
+# print(f"Accuracy on the test set: {accuracy:.2f}%")
