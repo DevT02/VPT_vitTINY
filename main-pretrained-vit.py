@@ -109,7 +109,7 @@ for epoch in range(epochs):
     train_losses.append(avg_train_loss)
 
     print(f"\033[97mEpoch [{epoch+1}/{epochs}]\033[0m", end=" ")
-    print(f"\033[91mAvg Train Loss: {avg_train_loss:.4f}\033[0m")
+    print(f"\033[91mAvg Train Loss: {avg_train_loss:.4f}\033[0m", end=" ")
 
     # Validation loop
     model.eval()
