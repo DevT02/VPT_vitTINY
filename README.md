@@ -8,7 +8,6 @@ Why are they a bad thing?
 
 It opens a loophole for security risks. If we don't add the perturbations in a manner that people cannot exploit, malicious actors could use this to trigger misclassification.
 
-The code does not run on VPT, but rather VPL (Visual-Prompt Learning). Still the same problems.
 ![An example of why this is bad](https://github.com/DevT02/VPT_vitTINY/assets/40608267/c4cf9a79-ff9b-4915-95ba-4835c57a1b6f)
 
 
@@ -32,6 +31,15 @@ Ensure conda is installed for best performance. Chardet may be required.
 
 ```git
 git clone https://github.com/google-research/vision_transformer
+```
+</details>
+
+## For VPT test
+<details open>
+<summary> VIT with VPT (including MSFT's) </summary>
+
+```git
+pip install iopath simplejson ml-collections
 ```
 </details>
 
