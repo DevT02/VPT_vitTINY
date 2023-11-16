@@ -39,7 +39,7 @@ git clone https://github.com/google-research/vision_transformer
 <summary> VIT with VPT (including MSFT's) </summary>
 
 ```git
-pip install iopath simplejson ml-collections
+pip install iopath simplejson ml-collections fvcore pandas
 ```
 </details>
 
