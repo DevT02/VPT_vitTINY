@@ -39,11 +39,12 @@ class ModelWithAttention(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, key_size, learning_rate):
         super(ModelWithAttention, self).__init__()
         self.features_extractor = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1), 
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # new convolutional layer
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  
             nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1), # Extra layer
+            nn.ReLU(), 
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
         self = self.to(device)  # Move the model to GPU if available
@@ -108,6 +109,7 @@ key_size = 64  # Example size for random keys
 epochs = 32
 batch_size = 64
 lr = 1e-4
+perturb_prob = 0.3 
 
 model = ModelWithAttention(input_size, hidden_size, output_size, key_size, learning_rate=lr) # Model's attention is on specific parts
 model.to(device)  # Move the model to GPU if available
@@ -133,8 +135,8 @@ test_len = len(dataset) - train_len
 train_data, test_data = random_split(dataset, [train_len, test_len])
 
 # Create DataLoaders
-train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_data, batch_size=32)
+train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
+test_loader = DataLoader(test_data, batch_size=64)
 
 print("\033[96mStarting training...\033[0m")
 train_losses, val_losses = [], []
@@ -153,6 +155,7 @@ def train_step(images, labels):
   optimizer.step()
   return loss
 
+
 # Full training loop
 def train_loop(loader, epsilon):
     model.train()
@@ -162,7 +165,7 @@ def train_loop(loader, epsilon):
         images = images.to(device)  # Move images to the appropriate device
         labels = labels.to(device)  # Move labels to the appropriate device
 
-        if random.random() < 0.5:  # Adjust probability as needed
+        if random.random() < perturb_prob:  # Adjust probability as needed
             perturbed_images = generate_perturbations(images, labels, epsilon)
             outputs = model(perturbed_images)
             loss = criterion(outputs, labels)
@@ -201,11 +204,13 @@ def val_loop(model, loader):
 
 train_losses, val_losses, val_accuracies = [], [], []
 log_interval = 500 # Controls how often to log the training metrics
-epsilon = 0.15 # modify for control over perturbations
+epsilon = 0.1
+epsilon_max = 0.3
 
 
 for epoch in range(epochs):
     # Training
+    epsilon = epsilon_max * epoch / epochs
     train_losses_epoch = train_loop(train_loader, epsilon)
     train_losses.append(sum(train_losses_epoch) / len(train_losses_epoch))
 
