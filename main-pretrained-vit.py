@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms, datasets
 
 from sklearn.model_selection import train_test_split
-from Cream.TinyViT.models.tiny_vit import tiny_vit_21m_224
+from Cream_git.TinyViT.models.tiny_vit import tiny_vit_21m_224
 
 # Check if CUDA is available and set PyTorch to use GPU or CPU accordingly
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
