@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import random
 import cv2
+from PIL import Image
 
 # Configuration parameters
 batch_size = 64
