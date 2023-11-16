@@ -39,10 +39,10 @@ class ModelWithAttention(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, key_size, learning_rate):
         super(ModelWithAttention, self).__init__()
         self.features_extractor = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),  # new convolutional layer
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # new convolutional layer
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
@@ -105,8 +105,8 @@ input_size = 16 * 112 * 112  # Example size after convolutional layers
 hidden_size = 128
 output_size = 10  # Example output classes
 key_size = 64  # Example size for random keys
-epochs = 5
-batch_size = 32
+epochs = 32
+batch_size = 64
 lr = 1e-4
 
 model = ModelWithAttention(input_size, hidden_size, output_size, key_size, learning_rate=lr) # Model's attention is on specific parts
@@ -126,7 +126,7 @@ transform = transforms.Compose([
 dataset = datasets.MNIST(root='./', download=True, transform=transform)
 
 # Determine the lengths of the training and testing datasets
-train_len = int(len(dataset) * 0.40)
+train_len = int(len(dataset) * 0.60)
 test_len = len(dataset) - train_len
 
 # Split the dataset into training and testing datasets
@@ -201,7 +201,7 @@ def val_loop(model, loader):
 
 train_losses, val_losses, val_accuracies = [], [], []
 log_interval = 500 # Controls how often to log the training metrics
-epsilon = 0.1 # modify for control over perturbations
+epsilon = 0.15 # modify for control over perturbations
 
 
 for epoch in range(epochs):
