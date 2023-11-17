@@ -42,7 +42,7 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=F
 
 
 num_epochs = 20
-learning_rate = 0.001
+learning_rate = 0.0005
 best_val_acc = 0.0
 early_stop_counter = 0
 early_stop_limit = 5  # Define a limit for early stopping (e.g., stop if validation accuracy doesn't improve for 5 epochs)
