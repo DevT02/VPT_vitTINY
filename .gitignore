@@ -2,3 +2,4 @@
 **/vpt/
 /data
 /VPT_official_SLURM_linux/data
+/VPT_official_SLURM_linux/src/models/PRETRAINED_MODELS

@@ -1,0 +1,108 @@
+[11/30 16:24:27][INFO] visual_prompt:   97: Rank of current process: 0. World size: 1
+[11/30 16:24:27][INFO] visual_prompt:   98: Environment info:
+-------------------  ------------------------------------------------------------------
+Python               3.7.2 (default, Feb 21 2019, 17:35:59) [MSC v.1915 64 bit (AMD64)]
+ENV_MODULE           <not set>
+PyTorch              1.8.0
+PyTorch Debug Build  False
+CUDA available       False
+Pillow               9.0.0
+cv2                  4.8.1
+-------------------  ------------------------------------------------------------------
+PyTorch built with:
+  - C++ Version: 199711
+  - MSVC 192829337
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191125 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.7.0 (Git Hash 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+  - OpenMP 2019
+  - CPU capability usage: AVX2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CXX_COMPILER=C:/cb/pytorch_1000000000000/work/tmp_bin/sccache-cl.exe, CXX_FLAGS=/DWIN32 /D_WINDOWS /GR /EHsc /w /bigobj -DUSE_PTHREADPOOL -openmp:experimental -DNDEBUG -DUSE_FBGEMM -DUSE_XNNPACK, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=OFF, USE_OPENMP=ON, 
+
+[11/30 16:24:27][INFO] visual_prompt:  100: Command line arguments: Namespace(config_file='configs/prompt/cars.yaml', opts=['MODEL.TRANSFER_TYPE', 'prompt', 'MODEL.PROMPT.DEEP', 'True', 'MODEL.PROMPT.NUM_TOKENS', '50', 'MODEL.PROMPT.DROPOUT', '0.0'], train_type='')
+[11/30 16:24:27][INFO] visual_prompt:  105: Contents of args.config_file=configs/prompt/cars.yaml:
+_BASE_: "../base-prompt.yaml"
+RUN_N_TIMES: 1
+DATA:
+  NAME: "StanfordCars"
+  DATAPATH: "E:/Development/OPTML Group/VPT_vitTINY/VPT_official_SLURM_linux/data/StanfordCars"  #TODO: need to specify here
+  NUMBER_CLASSES: 196
+  MULTILABEL: False
+MODEL:
+  TYPE: "vit"
+SOLVER:
+  BASE_LR: 0.001
+  WEIGHT_DECAY: 0.0001
+
+[11/30 16:24:27][INFO] visual_prompt:  109: Training with config:
+[11/30 16:24:27][INFO] visual_prompt:  110: {'CUDNN_BENCHMARK': False,
+ 'DATA': {'BATCH_SIZE': 128,
+          'CLASS_WEIGHTS_TYPE': 'none',
+          'CROPSIZE': 224,
+          'DATAPATH': 'E:/Development/OPTML '
+                      'Group/VPT_vitTINY/VPT_official_SLURM_linux/data/StanfordCars',
+          'FEATURE': 'sup_vitb16_224',
+          'MULTILABEL': False,
+          'NAME': 'StanfordCars',
+          'NO_TEST': False,
+          'NUMBER_CLASSES': 196,
+          'NUM_WORKERS': 4,
+          'PERCENTAGE': 1.0,
+          'PIN_MEMORY': True},
+ 'DBG': False,
+ 'DIST_BACKEND': 'nccl',
+ 'DIST_INIT_FILE': '',
+ 'DIST_INIT_PATH': 'env://',
+ 'MODEL': {'ADAPTER': CfgNode({'REDUCATION_FACTOR': 8, 'STYLE': 'Pfeiffer'}),
+           'LINEAR': CfgNode({'MLP_SIZES': [], 'DROPOUT': 0.1}),
+           'MLP_NUM': 0,
+           'MODEL_ROOT': '',
+           'PROMPT': {'CLSEMB_FOLDER': '',
+                      'CLSEMB_PATH': '',
+                      'DEEP': True,
+                      'DEEP_SHARED': False,
+                      'DROPOUT': 0.0,
+                      'FORWARD_DEEP_NOEXPAND': False,
+                      'INITIATION': 'random',
+                      'LOCATION': 'prepend',
+                      'NUM_DEEP_LAYERS': None,
+                      'NUM_TOKENS': 50,
+                      'PROJECT': -1,
+                      'REVERSE_DEEP': False,
+                      'SAVE_FOR_EACH_EPOCH': False,
+                      'VIT_POOL_TYPE': 'original'},
+           'SAVE_CKPT': False,
+           'TRANSFER_TYPE': 'prompt',
+           'TYPE': 'vit',
+           'WEIGHT_PATH': ''},
+ 'NUM_GPUS': 1,
+ 'NUM_SHARDS': 1,
+ 'OUTPUT_DIR': 'StanfordCars\\sup_vitb16_224\\lr0.001_wd0.0001\\run1',
+ 'RUN_N_TIMES': 1,
+ 'SEED': None,
+ 'SOLVER': {'BASE_LR': 0.001,
+            'BIAS_MULTIPLIER': 1.0,
+            'DBG_TRAINABLE': False,
+            'LOG_EVERY_N': 100,
+            'LOSS': 'softmax',
+            'LOSS_ALPHA': 0.01,
+            'MOMENTUM': 0.9,
+            'OPTIMIZER': 'sgd',
+            'PATIENCE': 300,
+            'SCHEDULER': 'cosine',
+            'TOTAL_EPOCH': 100,
+            'WARMUP_EPOCH': 10,
+            'WEIGHT_DECAY': 0.0001,
+            'WEIGHT_DECAY_BIAS': 0}}
+[11/30 16:24:27][INFO] visual_prompt:   67: Loading training data (final training data for vtab)...
+[11/30 16:24:27][INFO] visual_prompt:   27: Constructing StanfordCars dataset train...
+[11/30 16:24:27][INFO] visual_prompt:   70: Number of images: 7329
+[11/30 16:24:27][INFO] visual_prompt:   71: Number of classes: 196
+[11/30 16:24:27][INFO] visual_prompt:   73: Loading validation data...
+[11/30 16:24:27][INFO] visual_prompt:   27: Constructing StanfordCars dataset val...
+[11/30 16:24:27][INFO] visual_prompt:   70: Number of images: 815
+[11/30 16:24:27][INFO] visual_prompt:   71: Number of classes: 196
+[11/30 16:24:27][INFO] visual_prompt:   76: Loading test data...
+[11/30 16:24:27][INFO] visual_prompt:   27: Constructing StanfordCars dataset test...
+[11/30 16:24:27][INFO] visual_prompt:   70: Number of images: 8041
+[11/30 16:24:27][INFO] visual_prompt:   71: Number of classes: 196
+[11/30 16:24:27][INFO] visual_prompt:  103: Constructing models...
