@@ -2,7 +2,8 @@
 # conda create -n prompt python=3.7.1 # ORIGINAL
 # conda activate prompt
 # conda install python=3.8
-
+# if dll error:
+conda uninstall pillow
 pip install -q tensorflow
 # specifying tfds versions is important to reproduce our results
 pip install tfds-nightly==4.4.0.dev202201080107
@@ -31,4 +32,5 @@ pip install ml-collections
 # Optional: for slurm jobs
 pip install submitit -U
 pip install slurm_gpustat
-
+# downgrade pillow
+pip install pillow==9.0.0
