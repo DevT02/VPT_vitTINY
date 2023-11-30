@@ -1,0 +1,1 @@
+2023-11-29 19:47:23,279 -                train: [    INFO] - Device: cuda:0

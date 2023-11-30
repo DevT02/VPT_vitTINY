@@ -1,0 +1,60 @@
+{
+    "os": "Windows-10-10.0.22631-SP0",
+    "python": "3.10.13",
+    "heartbeatAt": "2023-11-30T00:57:01.114283",
+    "startedAt": "2023-11-30T00:56:59.178986",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--default_setting=default_configs.yaml",
+        "--dataname=CIFAR10",
+        "--modelname=vit_tiny_patch16_224_in21k",
+        "--prompt_type=shallow",
+        "--prompt_tokens=1",
+        "--img_resize=224"
+    ],
+    "state": "running",
+    "program": "E:\\Development\\OPTML Group\\VPT_vitTINY\\vpt-retry\\vpt\\main.py",
+    "codePathLocal": "main.py",
+    "codePath": "main.py",
+    "git": {
+        "remote": "https://github.com/TooTouch/VPT",
+        "commit": "3213382904edf371c148803ccd2213f003f0e2f2"
+    },
+    "email": "devliveforever@gmail.com",
+    "root": "E:/Development/OPTML Group/VPT_vitTINY/vpt-retry/VPT",
+    "host": "DESKTOP-AHFTM0O",
+    "username": "devli",
+    "executable": "E:\\Program\\MiniCondaEnviornments\\vpt_vit_tiny_backdoor\\python.exe",
+    "cpu_count": 6,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 2601.0,
+        "min": 0.0,
+        "max": 2601.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2601.0,
+            "min": 0.0,
+            "max": 2601.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 1862.9999961853027,
+            "used": 1419.4284324645996
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 3060",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3060",
+            "memory_total": 12884901888
+        }
+    ],
+    "memory": {
+        "total": 15.683467864990234
+    }
+}
