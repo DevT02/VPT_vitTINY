@@ -4,6 +4,9 @@
 import tensorflow_datasets as tfds
 data_dir = "E:\Development\OPTML Group\VPT_vitTINY\VPT_official_SLURM_linux\data"  # TODO: setup the data_dir to put the the data to, the DATA.DATAPATH value in config
 
+dataset_builder = tfds.builder("cars196:2.*.*", data_dir=data_dir)
+dataset_builder.download_and_prepare()
+
 # caltech101
 dataset_builder = tfds.builder("caltech101:3.*.*", data_dir=data_dir)
 dataset_builder.download_and_prepare()

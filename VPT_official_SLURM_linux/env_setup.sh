@@ -3,6 +3,7 @@
 # conda activate prompt
 # conda install python=3.8
 # if dll error:
+# conda create -n prompt python=3.7.2
 conda uninstall pillow
 pip install -q tensorflow
 # specifying tfds versions is important to reproduce our results
