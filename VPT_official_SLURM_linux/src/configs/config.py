@@ -11,7 +11,7 @@ _C = CfgNode()
 #   from configs.config import cfg
 
 _C.DBG = False
-_C.OUTPUT_DIR = "./output"
+_C.OUTPUT_DIR = "E:\Development\OPTML Group\VPT_vitTINY\VPT_official_SLURM_linux\src\output"
 _C.RUN_N_TIMES = 5
 # Perform benchmarking to select the fastest CUDNN algorithms to use
 # Note that this may increase the memory usage and will likely not result
@@ -34,7 +34,7 @@ _C.MODEL.TRANSFER_TYPE = "linear"  # one of linear, end2end, prompt, adapter, si
 _C.MODEL.WEIGHT_PATH = ""  # if resume from some checkpoint file
 _C.MODEL.SAVE_CKPT = False
 
-_C.MODEL.MODEL_ROOT = "./PRETRAINED_MODELS"  # root folder for pretrained model weights
+_C.MODEL.MODEL_ROOT = "E:\Development\OPTML Group\VPT_vitTINY\VPT_official_SLURM_linux\src\PRETRAINED_MODELS"  # root folder for pretrained model weights
 
 _C.MODEL.TYPE = "vit"
 _C.MODEL.MLP_NUM = 0
