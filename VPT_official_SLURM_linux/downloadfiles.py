@@ -1,3 +1,6 @@
+# in order to run this file, you need to upgrade to python 3.7.2
+# conda install python=3.7.2
+
 import tensorflow_datasets as tfds
 data_dir = "E:\Development\OPTML Group\VPT_vitTINY\VPT_official_SLURM_linux\data"  # TODO: setup the data_dir to put the the data to, the DATA.DATAPATH value in config
 
