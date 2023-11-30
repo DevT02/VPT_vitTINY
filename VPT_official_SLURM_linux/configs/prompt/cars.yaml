@@ -2,7 +2,7 @@ _BASE_: "../base-prompt.yaml"
 RUN_N_TIMES: 1
 DATA:
   NAME: "StanfordCars"
-  DATAPATH: "E:\Development\OPTML Group\VPT_vitTINY\VPT_official_SLURM_linux\data\StanfordCars"  #TODO: need to specify here
+  DATAPATH: "E:/Development/OPTML Group/VPT_vitTINY/VPT_official_SLURM_linux/data/StanfordCars"  #TODO: need to specify here
   NUMBER_CLASSES: 196
   MULTILABEL: False
 MODEL:
