@@ -16,6 +16,7 @@ from src.utils.file_io import PathManager
 from src.utils import logging
 from src.utils.distributed import get_rank, get_world_size
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "" 
 
 def collect_torch_env() -> str:
     try:
