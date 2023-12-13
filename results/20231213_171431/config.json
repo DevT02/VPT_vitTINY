@@ -1,0 +1,22 @@
+{
+  "dataset": "CIFAR10",
+  "batch_size": 32,
+  "epochs": 10,
+  "early_stop_patience": 5,
+  "lr": 0.001,
+  "img_size": 224,
+  "prompt_tokens": 5,
+  "prompt_type": "shallow",
+  "prompt_dropout": 0.0,
+  "use_adv_training": true,
+  "epsilon": 0.1,
+  "adv_prob": 0.5,
+  "use_backdoor": true,
+  "backdoor_target": 0,
+  "backdoor_prob": 0.3,
+  "seed": 42,
+  "data_dir": "./data",
+  "save_dir": "./checkpoints",
+  "results_dir": "./results",
+  "no_track_results": false
+}

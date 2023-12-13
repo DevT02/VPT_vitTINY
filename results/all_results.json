@@ -1,0 +1,40 @@
+[
+  {
+    "experiment_id": "20231213_171431",
+    "config": {
+      "dataset": "CIFAR10",
+      "batch_size": 32,
+      "epochs": 10,
+      "early_stop_patience": 5,
+      "lr": 0.001,
+      "img_size": 224,
+      "prompt_tokens": 5,
+      "prompt_type": "shallow",
+      "prompt_dropout": 0.0,
+      "use_adv_training": true,
+      "epsilon": 0.1,
+      "adv_prob": 0.5,
+      "use_backdoor": true,
+      "backdoor_target": 0,
+      "backdoor_prob": 0.3,
+      "seed": 42,
+      "data_dir": "./data",
+      "save_dir": "./checkpoints",
+      "results_dir": "./results",
+      "no_track_results": false
+    },
+    "best_val_acc": 85.13,
+    "best_val_epoch": 6,
+    "final_train_acc": 56.0125,
+    "final_val_acc": 73.4,
+    "test_results": {
+      "test_loss": 0.5903458160142929,
+      "test_acc": 79.65
+    },
+    "backdoor_results": {
+      "backdoor_loss": 0.9348961381485668,
+      "backdoor_acc": 47.07
+    },
+    "num_epochs": 10
+  }
+]
